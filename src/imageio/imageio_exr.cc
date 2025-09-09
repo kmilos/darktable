@@ -111,11 +111,30 @@ dt_imageio_retval_t dt_imageio_open_exr(dt_image_t *img,
     // if another software is able to update these exif data, the former test
     // should be removed to take the potential changes in account (not done
     // by normal import image flow)
-    const Imf::BlobAttribute *exif = header.findTypedAttribute<Imf::BlobAttribute>("exif");
-    if(exif)
+    uint8_t *exif_blob = nullptr;
+    uint32_t exif_size = 0;
+    // try the legacy, custom "Blob" attribute first
+    const Imf::BlobAttribute *exif_old = header.findTypedAttribute<Imf::BlobAttribute>("exif");
+    if(exif_old)
     {
-      uint8_t *exif_blob = exif->value().data.get();
-      uint32_t exif_size = exif->value().size;
+      *exif_blob = exif_old->value().data.get();
+      exif_size = exif_old->value().size;
+    }
+// the OPENEXR_VERSION_HEX macro is broken for 3.2.0 and earlier, must compute directly
+#if(((OPENEXR_VERSION_MAJOR << 24) | (OPENEXR_VERSION_MINOR << 16) | (OPENEXR_VERSION_PATCH << 8)) >= 0x03040000)
+    else
+    {
+      const Imf::BytesAttribute *exif_new = header.findTypedAttribute<Imf::BytesAttribute>("exif");
+      if(exif_new)
+      {
+        *exif_blob = exif_new->value().data.get();
+        exif_size = exif_new->value().size;
+      }
+    }
+#endif
+
+    if(exif_blob)
+    {
       /* skip any superfluous "Exif\0\0" APP1 prefix written by dt 4.0.0 and earlier */
       if(exif_size >= 6 && !memcmp(exif_blob, "Exif\0\0", 6))
       {

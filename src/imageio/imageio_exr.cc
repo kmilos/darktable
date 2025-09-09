@@ -127,7 +127,7 @@ dt_imageio_retval_t dt_imageio_open_exr(dt_image_t *img,
       const Imf::BytesAttribute *exif_new = header.findTypedAttribute<Imf::BytesAttribute>("exif");
       if(exif_new)
       {
-        *exif_blob = exif_new->data;
+        exif_blob = &exif_new->data;
         exif_size = exif_new->size;
       }
     }

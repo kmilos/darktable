@@ -112,7 +112,7 @@ dt_imageio_retval_t dt_imageio_open_exr(dt_image_t *img,
     // should be removed to take the potential changes in account (not done
     // by normal import image flow)
     uint8_t *exif_blob = nullptr;
-    uint32_t exif_size = 0;
+    size_t exif_size = 0;
     // try the legacy, custom "Blob" attribute first
     const Imf::BlobAttribute *exif_old = header.findTypedAttribute<Imf::BlobAttribute>("exif");
     if(exif_old)
@@ -127,8 +127,8 @@ dt_imageio_retval_t dt_imageio_open_exr(dt_image_t *img,
       const Imf::BytesAttribute *exif_new = header.findTypedAttribute<Imf::BytesAttribute>("exif");
       if(exif_new)
       {
-        *exif_blob = exif_new->value().data.get();
-        exif_size = exif_new->value().size;
+        *exif_blob = exif_new->data;
+        exif_size = exif_new->size;
       }
     }
 #endif

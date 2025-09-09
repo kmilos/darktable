@@ -136,8 +136,13 @@ int write_image(dt_imageio_module_data_t *tmp, const char *filename, const void 
   // TODO: workaround; remove when exiv2 implements EXR write support and use dt_exif_write_blob() at the end
   if(exif && exif_len > 0)
   {
+// the OPENEXR_VERSION_HEX macro is broken for 3.2.0 and earlier, must compute directly
+#if defined(USE_EXR_BYTES) && (((OPENEXR_VERSION_MAJOR << 24) | (OPENEXR_VERSION_MINOR << 16) | (OPENEXR_VERSION_PATCH << 8)) >= 0x03040000)
+    header.insert("exif", Imf::BytesAttribute(exif_len, exif));  
+#else
     Imf::Blob exif_blob(exif_len, (uint8_t *)exif);
     header.insert("exif", Imf::BlobAttribute(exif_blob));
+#endif
   }
 
   // TODO: workaround; remove when exiv2 implements EXR write support and update flags()

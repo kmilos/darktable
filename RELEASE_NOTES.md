@@ -367,7 +367,8 @@ changes (where available).
 
 ## RawSpeed changes
 
-- N/A
+- Nikon Coolpix B700, P950, P1000 and P1100 model names were restyled.
+- Nikon E5700 color matrix was updated.
 
 ## Camera support, compared to 5.4
 
